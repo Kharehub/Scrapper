@@ -8,7 +8,7 @@ export interface Article {
     published_date: string;
     summary?: string;
     author?: string;
-    image_url?: string;
+    image_url?: string | null;
     tags: string[];
     is_saved: boolean;
     saved_at?: string;
@@ -23,7 +23,7 @@ export interface ScrapedArticle {
     published_date: string;
     summary?: string;
     author?: string;
-    image_url?: string;
+    image_url?: string | null;
     tags: string[];
     scraped_at: string;
 }
