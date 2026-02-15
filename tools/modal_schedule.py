@@ -3,38 +3,40 @@ import sys
 import os
 
 # Create the Modal App
+# In Modal v1.x, modal.Stub was renamed to modal.App
 app = modal.App("ai-news-scraper")
 
 # Create a container image with our dependencies
-image = modal.Image.debian_slim().pip_install(
-    "requests",
-    "beautifulsoup4",
-    "supabase",
-    "python-dateutil",
-    "feedparser",
-    "python-dotenv"
+# In Modal v1.x, Mounts are often added directly to the image using add_local_dir
+image = (
+    modal.Image.debian_slim()
+    .pip_install(
+        "requests",
+        "beautifulsoup4",
+        "supabase",
+        "python-dateutil",
+        "feedparser",
+        "python-dotenv"
+    )
+    .add_local_dir("tools", remote_path="/root/tools")
 )
-
-# Mount the 'tools' directory so our scrapers are available in the container
-tools_mount = modal.Mount.from_local_dir("tools", remote_path="/root/tools")
 
 # Define the daily scheduled function
 @app.function(
     image=image,
     schedule=modal.Period(days=1), # Run every 24 hours
-    mounts=[tools_mount],
     # secrets=[modal.Secret.from_name("supabase-secrets")], # Uncomment when Supabase is ready
     timeout=600 # 10 minutes timeout
 )
 def run_daily_scrape():
     print("🚀 Starting scheduled daily scrape on Modal...")
     
-    # Add /root to python path to allow importing 'tools' modules
+    # Add /root to python path so we can import 'tools'
     if "/root" not in sys.path:
         sys.path.append("/root")
     
     try:
-        # Import run_all dynamically inside the container to avoid local import issues
+        # Import run_all from the baked-in /root/tools directory
         from tools import run_all
         run_all.main()
         print("✅ Daily scrape execution finished successfully.")
