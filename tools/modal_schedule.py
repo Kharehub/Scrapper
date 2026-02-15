@@ -23,7 +23,7 @@ tools_mount = modal.Mount.from_local_dir("tools", remote_path="/root/tools")
     image=image,
     schedule=modal.Period(days=1), # Run every 24 hours
     mounts=[tools_mount],
-    secrets=[modal.Secret.from_name("supabase-secrets")], # Expects a secret named 'supabase-secrets' in Modal dashboard
+    # secrets=[modal.Secret.from_name("supabase-secrets")], # Uncomment when Supabase is ready
     timeout=600 # 10 minutes timeout
 )
 def run_daily_scrape():
